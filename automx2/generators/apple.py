@@ -17,11 +17,13 @@ You should have received a copy of the GNU General Public License
 along with automx2. If not, see <https://www.gnu.org/licenses/>.
 """
 from typing import List
+from urllib.parse import urlparse
 from xml.etree.ElementTree import Element
 from xml.etree.ElementTree import SubElement
 
 from automx2 import DomainNotFound
 from automx2 import InvalidAuthenticationType
+from automx2 import InvalidServerType
 from automx2 import NoProviderForDomain
 from automx2 import NoServersForDomain
 from automx2.generators import ConfigGenerator
@@ -37,6 +39,10 @@ from automx2.util import socket_type_needs_ssl
 from automx2.util import strip_none_values
 from automx2.util import unique
 
+DAVSERVER_TYPE_MAP = {
+    'caldav': 'CalDAV',
+    'carddav': 'CardDAV',
+}
 AUTH_MAP = {
     'none': 'EmailAuthNone',
     'NTLM': 'EmailAuthNTLM',
@@ -86,7 +92,7 @@ def _subtree(parent: Element, key: str, value):
         _str_element(parent, key, value)
 
 
-def _account_payload(local: str, domain: str, account_type: str, account_name: str) -> dict:
+def _mail_account_payload(local: str, domain: str, account_type: str, account_name: str) -> dict:
     address = f'{local}@{domain}'
     uuid = unique()
     return {
@@ -114,10 +120,47 @@ def _account_payload(local: str, domain: str, account_type: str, account_name: s
     }
 
 
-def _config_payload(domain: str, content: dict) -> dict:
+def _dav_account_payload(local: str, domain: str, dav_type: str) -> dict:
+    address = f'{local}@{domain}'
     uuid = unique()
     return {
-        'PayloadContent': [content],
+        f'{DAVSERVER_TYPE_MAP[dav_type]}AccountDescription': address,
+        f'{DAVSERVER_TYPE_MAP[dav_type]}HostName': None,
+        f'{DAVSERVER_TYPE_MAP[dav_type]}Port': None,
+        f'{DAVSERVER_TYPE_MAP[dav_type]}PrincipalURL': None,
+        f'{DAVSERVER_TYPE_MAP[dav_type]}UseSSL': None,
+        f'{DAVSERVER_TYPE_MAP[dav_type]}Username': None,
+        'PayloadDescription': f'{DAVSERVER_TYPE_MAP[dav_type]} account {address}',
+        'PayloadDisplayName': domain,
+        'PayloadIdentifier': f'com.apple.{dav_type}.account.{uuid}',
+        'PayloadType': f'com.apple.{dav_type}.account',
+        'PayloadUUID': uuid,
+        'PayloadVersion': 1,
+    }
+
+# def _carddav_account_payload(local: str, domain: str) -> dict:
+#     address = f'{local}@{domain}'
+#     uuid = unique()
+#     return {
+#         'CardDAVAccountDescription': address,
+#         'CardDAVHostName': None,
+#         'CardDAVPort': None,
+#         'CardDAVPrincipalURL': None,
+#         'CardDAVUseSSL': None,
+#         'CardDAVUsername': None,
+#         'PayloadDescription': f'CardDAV account {address}',
+#         'PayloadDisplayName': domain,
+#         'PayloadIdentifier': f'com.apple.carddav.account.{uuid}',
+#         'PayloadType': 'com.apple.carddav.account',
+#         'PayloadUUID': uuid,
+#         'PayloadVersion': 1,
+#     }
+
+
+def _config_payload(domain: str, content: list) -> dict:
+    uuid = unique()
+    return {
+        'PayloadContent': content,
         'PayloadDisplayName': f'Email account {domain}',
         'PayloadIdentifier': branded_id(uuid),
         'PayloadRemovalDisallowed': False,
@@ -127,7 +170,7 @@ def _config_payload(domain: str, content: dict) -> dict:
     }
 
 
-def _sanitise(data, local: str, domain: str):
+def _sanitise(data: dict, local: str, domain: str):
     for k, v in data.items():
         if isinstance(v, list):
             for members in v:
@@ -189,7 +232,8 @@ class AppleGenerator(ConfigGenerator):
         smtp_server = _preferred_server(servers, 'smtp')
         if not smtp_server:  # pragma: no cover (not expected during testing)
             raise NoServersForDomain(f'No SMTP server for domain "{domain_part}"')
-        account = _account_payload(local_part, domain_part, SERVER_TYPE_MAP[mail_server.type][1], lookup_result.cn)
+        account = _mail_account_payload(local_part, domain_part, SERVER_TYPE_MAP[mail_server.type][1], lookup_result.cn)
+        config = []
         for server in [mail_server, smtp_server]:
             direction = SERVER_TYPE_MAP[server.type][0]
             account[f'{direction}MailServerHostName'] = server.name
@@ -197,7 +241,30 @@ class AppleGenerator(ConfigGenerator):
             account[f'{direction}MailServerUsername'] = self.pick_one(server.user_name, lookup_result.uid)
             account[f'{direction}MailServerAuthentication'] = _map_authentication(server)
             account[f'{direction}MailServerUseSSL'] = socket_type_needs_ssl(server.socket_type)
-        config = _config_payload(domain_part, strip_none_values(account))
+        account = strip_none_values(account)
+        config.append(account)
+
+        if domain.davservers:
+            for server in domain.davservers:
+                if server.type not in DAVSERVER_TYPE_MAP:
+                    raise InvalidServerType(f'Invalid DAV server type "{server.type}"')
+            caldav_servers, carddav_servers = [d for d in domain.davservers if d.type == 'caldav'], [d for d in domain.davservers if d.type == 'carddav' and d.port in [8800, 8843]]
+            dav_servers = [caldav_servers[0] if caldav_servers else {}, carddav_servers[0] if carddav_servers else {}]
+            dav_servers = list(filter(None, dav_servers))
+            for server in dav_servers:
+                dav_type = DAVSERVER_TYPE_MAP[server.type]
+                account = _dav_account_payload(local_part, domain_part, server.type)
+                account[f'{dav_type}HostName'] = urlparse(server.url).netloc
+                if server.port > 0:
+                    account[f'{dav_type}Port'] = server.port
+                if urlparse(server.url).path:
+                    account[f'{dav_type}PrincipalURL'] = urlparse(server.url).path
+                account[f'{dav_type}UseSSL'] = server.use_ssl
+                account[f'{dav_type}Username'] = server.user_name
+                account = strip_none_values(account)
+                config.append(account)
+
+        config = _config_payload(domain_part, config)
         _sanitise(config, local_part, domain_part)
         _subtree(root_element, '', config)
         return xml_to_string(root_element)

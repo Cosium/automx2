@@ -33,3 +33,7 @@
 
 2023.0.dev1 (TBA): Removed redundant Flask initialisation call in unit tests. This call caused errors when running the
   test suite with recent versions of SQLAlchemy.
+
+2023.0.1 (FORKED):
+* Add mozilla placeholders expansion support in CalDAV/CardDAV outlook autoconfig URLs.
+* Add CalDAV/CardDAV support for apple mobileconfig.

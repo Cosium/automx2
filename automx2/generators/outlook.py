@@ -116,6 +116,9 @@ class OutlookGenerator(ConfigGenerator):
         for server in domain.davservers:
             if server.type not in DAVSERVER_TYPE_MAP:  # pragma: no cover
                 raise InvalidServerType(f'Invalid DAV server type "{server.type}"')
+            if server.port in [8800, 8843]:
+                continue
             name = expand_placeholders(self.pick_one(server.user_name, lookup_result.uid), local_part, domain_part)
+            server.url = expand_placeholders(self.pick_one(server.url, lookup_result.uid), local_part, domain_part)
             self.davserver_element(account, server, name)
         return xml_to_string(root_element)
