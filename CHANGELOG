@@ -37,3 +37,6 @@
 2023.0.1 (FORKED):
 * Add mozilla placeholders expansion support in CalDAV/CardDAV outlook autoconfig URLs.
 * Add CalDAV/CardDAV support for apple mobileconfig.
+
+2023.0.2 (FORKED):
+* Updated README.md

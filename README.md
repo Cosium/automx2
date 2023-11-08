@@ -1,9 +1,9 @@
 # automx2: Email client configuration made easy
 
 automx2 makes configuring email accounts easy. It unites methods for automated mailbox configuration from Apple's
-[Mobileconfig](https://support.apple.com/de-de/guide/profile-manager/pmdbd71ebc9/mac), Microsoft's
-[Autodiscover](https://docs.microsoft.com/de-de/exchange/architecture/client-access/autodiscover?view=exchserver-2019)
-and Mozilla's [Autoconfig](https://developer.mozilla.org/de/docs/Mozilla/Thunderbird/Autokonfiguration) in one tool.
+[Mobileconfig](https://support.apple.com/en-gb/guide/profile-manager/pmdbd71ebc9/mac), Microsoft's
+[Autodiscover](https://learn.microsoft.com/en-us/exchange/architecture/client-access/autodiscover?view=exchserver-2019)
+and Mozilla's [Autoconfig](https://wiki.mozilla.org/Thunderbird:Autoconfiguration) in one tool.
 automx2 is successor to automx. It has been designed to be easier to setup, easier to configure and easier to use.
 
 ## Copyright
@@ -28,6 +28,9 @@ However, submitting ideas, suggestions and bug reports in the form of
 [GitHub issues](https://github.com/rseichter/automx2/issues) is welcome. Please refer to
 [this blog article](https://about.gitlab.com/blog/2016/03/03/start-with-an-issue/) for an explanation on why issues
 are a good method to share and discuss ideas.
+
+## Links
+- Apple mobileconfig [Developer guide](https://developer.apple.com/documentation/devicemanagement/profile-specific_payload_keys))
 
 ## Sponsorship
 
