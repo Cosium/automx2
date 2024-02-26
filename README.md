@@ -30,7 +30,7 @@ However, submitting ideas, suggestions and bug reports in the form of
 are a good method to share and discuss ideas.
 
 ## Links
-- Apple mobileconfig [Developer guide](https://developer.apple.com/documentation/devicemanagement/profile-specific_payload_keys))
+- Apple mobileconfig [Developer guide](https://developer.apple.com/documentation/devicemanagement/profile-specific_payload_keys)
 
 ## Sponsorship
 

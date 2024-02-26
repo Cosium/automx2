@@ -4,7 +4,7 @@
 
 2020.1 (2020-03-08): Support "werkzeug" release 1.0.0.
 
-2020.2 (2020-12-16): Introduce support for POP3 servers.
+2020.2 (2020-12-16): Introduce support for POP3 servers
 
 2021.0 (2021-01-09): Improve handling of login name placeholders in Outlook generator.
 
@@ -39,9 +39,7 @@
   Bundle documentation for offline use.
   Permit network tests to be enabled/disabled on demand.
 
-2023.0.1 (FORKED):
+2024.1.1 (FORKED):
 * Add mozilla placeholders expansion support in CalDAV/CardDAV outlook autoconfig URLs.
 * Add CalDAV/CardDAV support for apple mobileconfig.
-
-2023.0.2 (FORKED):
 * Updated README.md

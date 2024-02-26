@@ -138,24 +138,6 @@ def _dav_account_payload(local: str, domain: str, dav_type: str) -> dict:
         'PayloadVersion': 1,
     }
 
-# def _carddav_account_payload(local: str, domain: str) -> dict:
-#     address = f'{local}@{domain}'
-#     uuid = unique()
-#     return {
-#         'CardDAVAccountDescription': address,
-#         'CardDAVHostName': None,
-#         'CardDAVPort': None,
-#         'CardDAVPrincipalURL': None,
-#         'CardDAVUseSSL': None,
-#         'CardDAVUsername': None,
-#         'PayloadDescription': f'CardDAV account {address}',
-#         'PayloadDisplayName': domain,
-#         'PayloadIdentifier': f'com.apple.carddav.account.{uuid}',
-#         'PayloadType': 'com.apple.carddav.account',
-#         'PayloadUUID': uuid,
-#         'PayloadVersion': 1,
-#     }
-
 
 def _config_payload(domain: str, content: list) -> dict:
     uuid = unique()
@@ -248,7 +230,11 @@ class AppleGenerator(ConfigGenerator):
             for server in domain.davservers:
                 if server.type not in DAVSERVER_TYPE_MAP:
                     raise InvalidServerType(f'Invalid DAV server type "{server.type}"')
-            caldav_servers, carddav_servers = [d for d in domain.davservers if d.type == 'caldav'], [d for d in domain.davservers if d.type == 'carddav' and d.port in [8800, 8843]]
+            caldav_servers, carddav_servers = [d for d in domain.davservers if d.type == 'caldav'], [d for d in
+                                                                                                     domain.davservers
+                                                                                                     if
+                                                                                                     d.type == 'carddav' and d.port in [
+                                                                                                         8800, 8843]]
             dav_servers = [caldav_servers[0] if caldav_servers else {}, carddav_servers[0] if carddav_servers else {}]
             dav_servers = list(filter(None, dav_servers))
             for server in dav_servers:
