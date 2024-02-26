@@ -1,5 +1,5 @@
 """
-Copyright © 2019-2023 Ralph Seichter
+Copyright © 2019-2024 Ralph Seichter
 
 This file is part of automx2.
 
@@ -19,8 +19,8 @@ along with automx2. If not, see <https://www.gnu.org/licenses/>.
 import unittest
 
 from automx2.server import INITDB_ROUTE
-from tests.base import TestCase
-from tests.base import body
+from tests import TestCase
+from tests import body
 
 
 class DatabaseRoute(TestCase):

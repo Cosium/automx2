@@ -1,5 +1,5 @@
 """
-Copyright © 2019-2023 Ralph Seichter
+Copyright © 2019-2024 Ralph Seichter
 
 This file is part of automx2.
 
@@ -40,6 +40,7 @@ from automx2.views import EMAIL_MOZILLA
 from automx2.views import EMAIL_OUTLOOK
 
 RUN_LDAP_TESTS = from_environ('RUN_LDAP_TESTS') == '1'
+NETWORK_TESTS = from_environ('NETWORK_TESTS') == '1'
 
 
 def body(response: Response) -> str:
