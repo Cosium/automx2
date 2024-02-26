@@ -186,6 +186,8 @@ def _preferred_server(servers: List[Server], type_: str) -> Server:
             elif (server.socket_type not in encrypted) and (s.socket_type in encrypted):
                 # Server uses one of the preferred socket types while the candidate does not.
                 server = s
+    if server.socket_type == "STARTTLS":
+        server.socket_type = "SSL"
     return server
 
 

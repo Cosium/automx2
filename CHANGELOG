@@ -43,3 +43,4 @@
 * Add mozilla placeholders expansion support in CalDAV/CardDAV outlook autoconfig URLs.
 * Add CalDAV/CardDAV support for apple mobileconfig.
 * Updated README.md
+* Override apple socket type, as for iOS mail.app, STARTTLS == SSL
